@@ -1,90 +1,124 @@
 import scrapy
-from scrapy.contrib.spiders import CrawlSpider, Rule
-from scrapy.contrib.linkextractors.sgml import SgmlLinkExtractor
+#from scrapy.contrib.spiders import CrawlSpider, Rule
+#from scrapy.contrib.linkextractors.sgml import SgmlLinkExtractor
 
-from scrapper.items import ScrapperItem, MuseumItem
-'''
-class Spider(scrapy.Spider):
-    name = "museum_spider"
-    allowed_domains = ["britishmuseum.org"]
-    start_urls = [
-        "http://www.britishmuseum.org/research/collection_online/search.aspx?searchText=drawing"
-    ]
-ls
+from scrapper.items import MuseumItem
 
-    def parse(self, response):
-	links = response.css('a::attr(href)').extract()
-        for link in links:
-		item = ScrapperItem()
-		item['link'] = link
-		yield item
-'''
 class Spider(CrawlSpider):
 	name = "museum_spider"
 	allowed_domains = ["britishmuseum.org"]
 	start_urls = [
-	"http://www.britishmuseum.org/research/collection_online/search.aspx?from=ad&fromDate=1700&object=22909"
+	"http://www.britishmuseum.org/research/collection_online/search.aspx?from=ad&fromDate=1700&object=21243"
 	]
-	rules = (Rule (SgmlLinkExtractor(allow=("&partId=1&from=ad&fromDate=1700&object=22909&page=1",)), callback="parse_item", follow= True),)
+	rules = (Rule (SgmlLinkExtractor(allow=("from=ad&fromDate=1700&object=21243&page=[1-2]$",)), callback="parse_item", follow= True),)
 #	rules = (Rule (SgmlLinkExtractor(allow=("&searchText=drawing&page=1","&searchText=drawing&page=2","&searchText=drawing&page=3",)), callback="parse_item", follow= True),)
 
 	def parse_item(self, response):
 		
 		museumNumber = " "
-		if response.css(".objectDetails").xpath("//li[h3='Museum number']/p/text()").extract():
-			museumNumber = response.css(".objectDetails").xpath("//li[h3='Museum number']/p/text()").extract()[0]
+		if response.css(".objectDetails").xpath("li[h3='Museum number']/p/text()").extract():
+			museumNumber = '; '.join(response.css(".objectDetails").xpath("li[h3='Museum number']/p/text()").extract())
 
 		producerName = " "
-		if response.css(".objectDetails").xpath("//li[h3='Producer name']/ul/li/a/text()").extract():
-			producerName = response.css(".objectDetails").xpath("//li[h3='Producer name']/ul/li/a/text()").extract()[0]
+		if response.css(".objectDetails").xpath("li[h3='Producer name']/ul/li/a/text()").extract():
+			producerName = '; '.join(response.css(".objectDetails").xpath("li[h3='Producer name']/ul/li/a/text()").extract())
 
 		description = " "
-		if response.css(".objectDetails").xpath("//li[h3='Description']/p/text()").extract():
-			description = response.css(".objectDetails").xpath("//li[h3='Description']/p/text()").extract()[0]
+		if response.css(".objectDetails").xpath("li[h3='Description']/p/text()").extract():
+			description = '; '.join(response.css(".objectDetails").xpath("li[h3='Description']/p/text()").extract())
 
 		schoolOrStyle = " "
-		if response.css(".objectDetails").xpath("//li[h3='School/Style']/ul/li/a/text()").extract():
-			schoolOrStyle = response.css(".objectDetails").xpath("//li[h3='School/Style']/ul/li/a/text()").extract()[0]
+		if response.css(".objectDetails").xpath("li[h3='School/style']/ul/li/a/text()").extract():
+			schoolOrStyle = '; '.join(response.css(".objectDetails").xpath("li[h3='School/style']/ul/li/a/text()").extract())
 
 		date = " "
-		if response.css(".objectDetails").xpath("//li[h3='Date']/ul/li/text()").extract():
-			date = response.css(".objectDetails").xpath("//li[h3='Date']/ul/li/text()").extract()[0]
+		if response.css(".objectDetails").xpath("li[h3='Date']/ul/li/text()").extract():
+			date = '; '.join(response.css(".objectDetails").xpath("li[h3='Date']/ul/li/text()").extract())
 
 		materials = " "
-		if response.css(".objectDetails").xpath("//li[h3='Materials']/ul/li/a/text()").extract():
-			materials = response.css(".objectDetails").xpath("//li[h3='Materials']/ul/li/a/text()").extract()[0]
+		if response.css(".objectDetails").xpath("li[h3='Materials']/ul/li/a/text()").extract():
+			materials = '; '.join(response.css(".objectDetails").xpath("li[h3='Materials']/ul/li/a/text()").extract())
 		
 		technique = " "
-		if response.css(".objectDetails").xpath("//li[h3='Technique']/ul/li/a/text()").extract():
-			technique = response.css(".objectDetails").xpath("//li[h3='Technique']/ul/li/a/text()").extract()[0]
+		if response.css(".objectDetails").xpath("li[h3='Technique']/ul/li/a/text()").extract():
+			technique = '; '.join(response.css(".objectDetails").xpath("li[h3='Technique']/ul/li/a/text()").extract())
 		
-		height = " "
-		if response.css(".objectDetails").xpath("//li[h3='Dimensions']/ul/li[1]/text()").extract():
-			height = response.css(".objectDetails").xpath("//li[h3='Dimensions']/ul/li[1]/text()").extract()[0]
-		
-		width = " "
-		if response.css(".objectDetails").xpath("//li[h3='Dimensions']/ul/li[2]/text()").extract():
-			width = response.css(".objectDetails").xpath("//li[h3='Dimensions']/ul/li[2]/text()").extract()[0]
+		dimensions = " "
+		if response.css(".objectDetails").xpath("li[h3='Dimensions']/ul/li/text()").extract():
+			dimensions = '; '.join(response.css(".objectDetails").xpath("li[h3='Dimensions']/ul/li/text()").extract())
 
 		curatorsComments = " "
-		if response.css(".objectDetails").xpath("//li[h3='Curator's comments']/p/text()").extract():
-			curatorsComments = response.css(".objectDetails").xpath("//li[h3='Curator's comments']/p/text()").extract()[0]
+		if response.css(".objectDetails").xpath("li[starts-with(h3,'Curator')]/p/text()").extract():
+			curatorsComments = '; '.join(response.css(".objectDetails").xpath("li[starts-with(h3,'Curator')]/p/text()").extract())
 
 		location = " "
-		if response.css(".objectDetails").xpath("//li[h3='Location']/p/text()").extract():
-			location = response.css(".objectDetails").xpath("//li[h3='Location']/p/text()").extract()[0]		
+		if response.css(".objectDetails").xpath("li[h3='Location']/p/text()").extract():
+			location = '; '.join(response.css(".objectDetails").xpath("li[h3='Location']/p/text()").extract())	
 		
 		acquisitionDate = " "
-		if response.css(".objectDetails").xpath("//li[h3='Acquisition date']/p/text()").extract():
-			acquisitionDate = response.css(".objectDetails").xpath("//li[h3='Acquisition date']/p/text()").extract()[0]
+		if response.css(".objectDetails").xpath("li[h3='Acquisition date']/p/text()").extract():
+			acquisitionDate = '; '.join(response.css(".objectDetails").xpath("li[h3='Acquisition date']/p/text()").extract())
 
 		department = " "
-		if response.css(".objectDetails").xpath("//li[h3='Department']/p/text()").extract():
-			department = response.css(".objectDetails").xpath("//li[h3='Department']/p/text()").extract()[0]
+		if response.css(".objectDetails").xpath("li[h3='Department']/p/text()").extract():
+			department = '; '.join(response.css(".objectDetails").xpath("li[h3='Department']/p/text()").extract())
 
 		registrationNumber = " "
-		if response.css(".objectDetails").xpath("//li[h3='Registration number']/p/text()").extract():
-			registrationNumber = response.css(".objectDetails").xpath("//li[h3='Registration number']/p/text()").extract()[0]
+		if response.css(".objectDetails").xpath("li[h3='Registration number']/p/text()").extract():
+			registrationNumber = '; '.join(response.css(".objectDetails").xpath("li[h3='Registration number']/p/text()").extract())
+		
+		imageLink = " "
+		if response.css(".objectImage").xpath("a/img/@src").extract():
+			imageLink = response.css(".objectImage").xpath("a/img/@src").extract()[0]
+			imageLink = "http://www.britishmuseum.org" + imageLink.split("?")[0]
+			
+		productionPlace = " "
+		if response.css(".objectDetails").xpath("li[h3='Production place']/ul/li/a/text()").extract():
+			productionPlace = '; '.join(response.css(".objectDetails").xpath("li[h3='Production place']/ul/li/a/text()").extract())
+
+		objectType = " "
+		if response.css(".objectDetails").xpath("li[h3='Object type']/ul/li/a/text()").extract():
+			objectType = '; '.join(response.css(".objectDetails").xpath("li[h3='Object type']/ul/li/a/text()").extract())
+		
+		inscriptions = " "
+		if response.css(".objectDetails").xpath("li[h3='Inscriptions']/ul/li/ul/li/text()").extract():
+			inscriptions = '; '.join(response.css(".objectDetails").xpath("li[h3='Inscriptions']/ul/li/ul/li/text()").extract())
+
+		exhibitionHistory = " "
+		if response.css(".objectDetails").xpath("li[h3='Exhibition history']/p/text()").extract():
+			exhibitionHistory = '; '.join(response.css(".objectDetails").xpath("li[h3='Exhibition history']/p/text()").extract())
+		
+		associatedNames = " "
+		if response.css(".objectDetails").xpath("li[h3='Associated names']/ul/li/a/text()").extract():
+			associatedNames = '; '.join(response.css(".objectDetails").xpath("li[h3='Associated names']/ul/li/a/text()").extract())
+
+		acquisitionName = " "
+		if response.css(".objectDetails").xpath("li[h3='Acquisition name']/ul/li/a/text()").extract():
+			acquisitionName = '; '.join(response.css(".objectDetails").xpath("li[h3='Acquisition name']/ul/li/a/text()").extract())
+		
+		acquisitionNotes = " "
+		if response.css(".objectDetails").xpath("li[h3='Acquisition notes']/p/text()").extract():
+			acquisitionNotes = '; '.join(response.css(".objectDetails").xpath("li[h3='Acquisition notes']/p/text()").extract())
+		
+		bibliography = " "
+		if response.css(".objectDetails").xpath("li[h3='Bibliography']/ul/li/text()").extract():
+			bibliography = '; '.join(response.css(".objectDetails").xpath("li[h3='Bibliography']/ul/li/text()").extract())
+		
+		additonalIDs = " "
+		if response.css(".objectDetails").xpath("li[h3='Additional IDs']/ul/li/text()").extract():
+			additonalIDs = '; '.join(response.css(".objectDetails").xpath("li[h3='Additional IDs']/ul/li/text()").extract())
+		
+		subjects = " "
+		if response.css(".objectDetails").xpath("li[h3='Subjects']/ul/li/a/text()").extract():
+			subjects = '; '.join(response.css(".objectDetails").xpath("li[h3='Subjects']/ul/li/a/text()").extract())
+		
+		findspot = " "
+		if response.css(".objectDetails").xpath("li[h3='Findspot']/ul/li/a/text()").extract():
+			findspot = '; '.join(response.css(".objectDetails").xpath("li[h3='Findspot']/ul/li/a/text()").extract())
+		
+		cultureOrPeriod = " "
+		if response.css(".objectDetails").xpath("li[h3='Culture/period']/ul/li/a/text()").extract():
+			cultureOrPeriod = '; '.join(response.css(".objectDetails").xpath("li[h3='Culture/period']/ul/li/a/text()").extract())
 
 		item = MuseumItem()
 		item['museumNumber'] = museumNumber
@@ -94,12 +128,24 @@ class Spider(CrawlSpider):
 		item['date'] = date
 		item['materials'] = materials
 		item['technique'] = technique
-		item['height'] = height
-		item['width'] = width
+		item['dimensions'] = dimensions
 		item['curatorsComments'] = curatorsComments
 		item['location'] = location
 		item['acquisitionDate'] = acquisitionDate
 		item['department'] = department
 		item['registrationNumber'] = registrationNumber
+		item['imageLink'] = imageLink
+		item['productionPlace'] = productionPlace
+		item['objectType'] = objectType
+		item['inscriptions'] = inscriptions
+		item['exhibitionHistory'] = exhibitionHistory
+		item['associatedNames'] = associatedNames
+		item['acquisitionName'] = acquisitionName
+		item['acquisitionNotes'] = acquisitionNotes
+		item['bibliography'] = bibliography
+		item['additonalIDs'] = additonalIDs
+		item['subjects'] = subjects
+		item['findspot'] = findspot
+		item['cultureOrPeriod'] = cultureOrPeriod
 		yield item
 

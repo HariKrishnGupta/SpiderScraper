@@ -7,12 +7,6 @@
 
 import scrapy
 
-
-class ScrapperItem(scrapy.Item):
-    # define the fields for your item here like:
-    # name = scrapy.Field()l
-    link = scrapy.Field()
-
 class MuseumItem(scrapy.Item):
 	museumNumber = scrapy.Field()
 	producerName = scrapy.Field()
@@ -21,10 +15,25 @@ class MuseumItem(scrapy.Item):
 	date = scrapy.Field()
 	materials = scrapy.Field()
 	technique = scrapy.Field()
-	height = scrapy.Field()
-	width = scrapy.Field()
+	dimensions = scrapy.Field()
 	curatorsComments = scrapy.Field()
 	location = scrapy.Field()
 	acquisitionDate = scrapy.Field()
 	department = scrapy.Field()
 	registrationNumber = scrapy.Field()
+	imageLink = scrapy.Field()
+	productionPlace = scrapy.Field()
+	objectType = scrapy.Field()
+	inscriptions = scrapy.Field()
+	exhibitionHistory = scrapy.Field()
+	associatedNames = scrapy.Field()
+	acquisitionName = scrapy.Field()
+	acquisitionNotes = scrapy.Field()
+	bibliography = scrapy.Field()
+	additonalIDs = scrapy.Field()
+	subjects = scrapy.Field()
+	findspot = scrapy.Field()
+	cultureOrPeriod = scrapy.Field()
+
+
+
