@@ -6,11 +6,8 @@ from scrapper.items import MuseumItem
 class Spider(CrawlSpider):
 	name = "museum_spider"
 	allowed_domains = ["britishmuseum.org"]
-	start_urls = [
-	"http://www.britishmuseum.org/research/collection_online/search.aspx?from=ad&fromDate=1700&object=21243"
-	]
-	rules = (Rule (SgmlLinkExtractor(allow=("from=ad&fromDate=1700&object=21243&page=[1-2]$",)), callback="parse_item", follow= True),)
-#	rules = (Rule (SgmlLinkExtractor(allow=("&searchText=drawing&page=1","&searchText=drawing&page=2","&searchText=drawing&page=3",)), callback="parse_item", follow= True),)
+	start_urls = ["http://www.britishmuseum.org/research/collection_online/search.aspx?from=ad&fromDate=1700&object=21243"]
+	rules = (Rule (SgmlLinkExtractor(allow=("from=ad&fromDate=1700&object=21243&page=[1-6]$",)), callback="parse_item", follow= True),)
 
 	def parse_item(self, response):
 		
@@ -146,5 +143,7 @@ class Spider(CrawlSpider):
 		item['subjects'] = subjects
 		item['findspot'] = findspot
 		item['cultureOrPeriod'] = cultureOrPeriod
-		yield item
+
+		if not (item['museumNumber'] == " " and item['producerName'] == " " and item['description'] == " " and item['schoolOrStyle'] == " " and item['date'] == " " and item['materials'] == " " and item['technique'] == " " and item['dimensions'] == " " and item['curatorsComments'] == " " and item['location'] == " " and item['acquisitionDate'] == " " and item['department'] == " " and item['registrationNumber'] == " " and item['imageLink'] == " " and item['productionPlace'] == " " and item['objectType'] == " " and item['inscriptions'] == " " and item['exhibitionHistory'] == " " and item['associatedNames'] == " " and item['acquisitionName'] == " " and item['acquisitionNotes'] == " " and item['bibliography'] == " " and item['additonalIDs'] == " " and item['subjects'] == " " and item['findspot'] == " " and item['cultureOrPeriod'] == " "):
+			yield item
 
